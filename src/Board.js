@@ -35,7 +35,8 @@ class Board extends Component {
     super(props);
 
     // TODO: set initial state
-    this.createBoard();
+    this.state = {board: this.createBoard()};
+    // this.setState({board: this.createBoard()});
   }
 
   /** create a board nrows high/ncols wide, each cell randomly lit or unlit */
@@ -71,12 +72,28 @@ class Board extends Component {
       }
     }
 
-    // TODO: flip this cell and the cells around it
+    //flipcells around
+    function flipCellsAround(y, x) {
+      const north = {x: x - 1, y: y};
+      const south = {x: x + 1, y: y};
+      const east = {x: x, y: y - 1};
+      const west = {x: x, y: y + 1};
+
+      flipCell(north.y, north.x);
+      flipCell(south.y, south.x);
+      flipCell(east.y, east.x);
+      flipCell(west.y, west.x);
+    }
+
+    flipCell(y, x);
+    flipCellsAround(y, x);
+
 
     // win when every cell is turned off
     // TODO: determine is the game has been won
-
-    // this.setState({board, hasWon});
+    const isOff = (cell) => cell === false;
+    const hasWon = board[x].every(isOff) && board[y].every(isOff);
+    this.setState({board, hasWon});
   }
 
 
@@ -85,34 +102,34 @@ class Board extends Component {
   render() {
 
     // if the game is won, just show a winning msg & render nothing else
-
-    // TODO
-
     // make table board
-    // get number of trs, put a row list on each one
-      // get each row from board
-      // get all items from that row
-      // put tr tags around that cell list
-    const board = this.createBoard();
-    const makeFirstRow = <tr> {board[0].map((cell) => <Cell isLit={cell}/>)}</tr>;
-    const makeSecondRow = <tr> {board[1].map((cell) => <Cell isLit={cell}/>)}</tr>;
 
-    const builtBoard = board.map((row, rowIndex) => {
+
+    const graphicBoard = this.state.board.map((row, rowIndex) => {
       const mappedRow = row.map((cell, cellIndex) => {
         const cellKey = `${rowIndex}-${cellIndex}`;
-        return <Cell key={cellKey} isLit={cell}/>;
+        return <Cell key={cellKey} isLit={cell} flipCellsAroundMe={this.flipCellsAround.bind(this, cellKey)}/>;
       });
 
       return <tr>{mappedRow}</tr>;
     });
 
-    // TODO
-    return (
-      <table className="Board">
+    let gameDisplay;
+
+    if(this.state.hasWon) {
+      gameDisplay = <h1>You win!</h1>
+    } else {
+      gameDisplay = <table className="Board">
         <tbody>
-        {builtBoard}
+        {graphicBoard}
         </tbody>
       </table>
+    }
+
+    return (
+      <div>
+        {gameDisplay}
+      </div>
     )
   }
 }
